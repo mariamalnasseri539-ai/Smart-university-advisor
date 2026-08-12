@@ -1,27 +1,27 @@
 import { questions } from "../data/questions";
 
-// System Prompt for Gemini AI Guidance Counselor
+// System Prompt for Gemini AI Guidance Counselor analyzing Open-Ended Responses
 const SYSTEM_PROMPT = `
-أنت خبير إرشاد أكاديمي ونفسي ومستشار في التخطيط المهني وسوق العمل للتعليم الجامعي، وتتمتع ببديهة عالية ومعرفة عميقة بتخصصات المستقبل ومتطلبات سوق العمل المحلي والعالمي.
+أنت خبير إرشاد أكاديمي ونفسي ومستشار في التخطيط المهني وسوق العمل للتعليم الجامعي، وتتمتع ببديهة عالية ومعرفة عميقة بتخصصات المستقبل ومتطلبات سوق العمل.
 
-سيتم تزويدك بإجابات طالب في استبيان مكون من 12 سؤالاً يغطي الميول العلمية، نمط التفكير، بيئة العمل المفضلة، حل المشكلات، الشغف، والهدف الوظيفي.
+سيتم تزويدك بإجابات طالب ثانوية في استبيان مفتوح بالنص الحر (Open-Ended Responses) مكون من 12 سؤالاً يغطي المواد المدرسية، حلم الطفولة، الأنشطة المدرسية، طريقة المذاكرة، الفضول الرقمي، الشغف، والتطلعات.
 
 مهمتك:
-أنت مطالب بتحليل الإجابات بدقة ودراسة التوافق النفسي والأكاديمي للطالب، ثم تقديم تقرير إرشادي جامعي متكامل وعميق بتنسيق JSON حصراً بنفس الهيكل التالي بالضبط وبدون أي نصوص خارجية أو markdown wrappers غير الـ JSON الصريح:
+قم بتحليل النصوص والكلمات والتعبير الخاص بالطالب بدقة واستخراج النمط السلوكي والذهني والأكاديمي، ثم تقديم تقرير إرشادي جامعي مخصص وعميق بتنسيق JSON حصراً بنفس الهيكل التالي بالضبط وبدون أي نصوص خارجية أو markdown wrappers غير الـ JSON الصريح:
 
 {
-  "personalitySummary": "ملخص شامل لطبيعة تفكير الطالب وشغفه الأكاديمي والمهني (3-4 أسطر).",
+  "personalitySummary": "ملخص شامل لطبيعة تفكير الطالب وشغفه الأكاديمي والمهني بناءً على تحليلات كلماته الحرّة (3-4 أسطر).",
   "primaryMajor": {
-    "name": "اسم التخصص الرئيسي باللغة العربية (مثال: هندسة الذكاء الاصطناعي والدعم الخوارزمي)",
+    "name": "اسم التخصص الرئيسي باللغة العربية (مثال: هندسة الذكاء الاصطناعي وعلم البيانات)",
     "englishName": "اسم التخصص بالإنجليزية",
     "category": "هندسة وتقنية / طب وصحة / إدارة واقتصاد / تصميم وإعلام / قانون وعلوم اجتماعية",
     "compatibilityScore": 96,
     "overview": "شرح مفصل ومحفز للتخصص وأهميته في المستقبل.",
     "whyMatch": [
-      "سبب أول ينبع مباشرة من اختيار الطالب في الاستبيان",
-      "سبب ثاني مرتبط بنمط تفكيره التحليلي أو الإبداعي",
-      "سبب ثالث يتعلق ببيئة العمل والشغف المهني",
-      "سبب رابع يرتبط بتطلعاته المالية والمستقبلية"
+      "سبب أول ينبع مباشرة من الكلمات أو الأفكار التي ذكرها الطالب في إجاباته",
+      "سبب ثاني مرتبط بنمط تفكيره التحليلي أو الإبداعي من النص",
+      "سبب ثالث يتعلق بالشغف والأنشطة المدرسية المذكورة",
+      "سبب رابع يرتبط برؤيته وتطلعاته المستقبلية"
     ],
     "coreSubjects": [
       "مادة أساسية 1",
@@ -37,7 +37,7 @@ const SYSTEM_PROMPT = `
     ],
     "careerOutlook": {
       "demand": "مرتفع جداً / ممتاز",
-      "medianSalary": "رواتب تنافسية مرتفعة (مثال: 12,000 - 25,000 ريال شهرياً / حسب المنطقة)",
+      "medianSalary": "رواتب تنافسية مرتفعة (مثال: 14,000 - 28,000 ريال شهرياً)",
       "topRoles": [
         "مسمى وظيفي 1",
         "مسمى وظيفي 2",
@@ -80,7 +80,7 @@ const SYSTEM_PROMPT = `
   ]
 }
 
-تنبيه هام جداً: اجعل الإجابة دائماً باللغة العربية الفصيحة، محفزة، علمية، ومنظمة داخل كائن JSON فقط بدون أي مقدمات أو خاتمة خوارزمية.
+تنبيه هام جداً: اجعل الإجابة دائماً باللغة العربية الفصيحة، محفزة، علمية، ومنظمة داخل كائن JSON فقط.
 `;
 
 // Detailed Fallback Major Knowledge Base
@@ -93,10 +93,10 @@ const FALLBACK_MAJORS_DATABASE = {
       compatibilityScore: 97,
       overview: "تخصص محوري يدمج بين منطق الخوارزميات، تطوير الأنظمة الذكية، وبناء الحلول البرمجية الشاملة التي تقود التحول الرقمي العالمي.",
       whyMatch: [
-        "تفوقك في حل المشكلات البرمجية والتفكير المنطقي المتسلسل.",
-        "شغفك بالرياضيات والمعادلات الحسابية والتقنيات الرقمية الحديثة.",
+        "اهتمامك المباشر في إجاباتك المفتوحة بعالم الحاسب والبرمجة وحل الألغاز المنطقية.",
+        "شغفك بالأرقام والتقنيات الرقمية وتفكيك المشاكل البرمجية.",
         "تفضيلك لبيئات العمل التكنولوجية المرنة وفرص العمل العالمية.",
-        "رغبتك في بناء منتجات ذات أثر ملموس ورواتب تنافسية عالية."
+        "رغبتك في بناء منتجات تقنية ذات أثر ملموس ورواتب تنافسية عالية."
       ],
       coreSubjects: ["هياكل البيانات والتمثيل الخوارزمي", "تعلم الآلة والذكاء الاصطناعي", "هندسة البرمجيات وتصميم الأنظمة", "الأمن السيبراني وقواعد البيانات"],
       keySkills: ["البرمجة بلغة Python & C++", "التفكير الخوارزمي والتجريدي", "إدارة المشاريع البرمجية Agile", "تفكير التصميم وحل المشكلات المعقدة"],
@@ -142,7 +142,7 @@ const FALLBACK_MAJORS_DATABASE = {
       compatibilityScore: 96,
       overview: "المهنة الإنسانية الأسمى التي تجمع بين البحث العلمي الدقيق في وظائف الجسم البشري وتقديم التشخيص والعلاج والرعاية الصحية الفائقة.",
       whyMatch: [
-        "شغفك العميق بعلم الأحياء والفيزيولوجيا وظواهر جسم الإنسان.",
+        "شغفك المعبر عنه في إجاباتك المفتوحة بعلم الأحياء والعلوم الصحية ومساعدة المرضى.",
         "دافعك الإنساني الكبير لمساعدة الآخرين والتخفيف من آلامهم.",
         "قدرتك العالية على التحمل والتركيز والتفاصيل الطبية الدقيقة.",
         "تطلعك لمكانة اجتماعية واعدة وأمان وظيفي طويل الأمد."
@@ -191,7 +191,7 @@ const FALLBACK_MAJORS_DATABASE = {
       compatibilityScore: 95,
       overview: "تخصص ديناميكي يركز على صياغة الاستراتيجيات التجارية، التخطيط المالي، ريادة الأعمال، وإدارة المؤسسات في عصر الاقتصادات الرقمية.",
       whyMatch: [
-        "عقليتك القيادية والاستراتيجية وقدرتك على تقييم المخاطر والتكاليف.",
+        "عقليتك التنظيمية والتجارية الملاحظة في إجاباتك النصية واهتمامك بالأرباح والشركات.",
         "شغفك بريادة الأعمال وفهم حركة الأسواق والمشاريع الاستثمارية.",
         "مهاراتك في إدارة فرق العمل والمفاوضات واتخاذ القرارات الحاسمة.",
         "تطلعك لفرص نمو مالي سريع وتأسيس أعمالك الخاصة."
@@ -240,7 +240,7 @@ const FALLBACK_MAJORS_DATABASE = {
       compatibilityScore: 96,
       overview: "عالم إبداعي رائع يجمع بين فنون التصميم الجرافيكي، تصميم واجهات وتجارب المستخدم للتطبيقات، والإنتاج البصري الرقمي.",
       whyMatch: [
-        "حسك الفني البصري وشغفك بعالم الألوان والتصاميم المبتكرة.",
+        "حسك الفني البصري وشغفك بعالم الألوان والتصاميم المبتكرة في تعبيرك الحر.",
         "تفكيرك الإبداعي خارج الصندوق ورغبتك في تجنب الروتين الوظيفي القاتل.",
         "قدرتك على تجسيد الأفكار المعقدة في صور وتجارب مرئية ساحرة.",
         "تفضيلك لبيئات العمل الإبداعية الملهمة وإمكانية العمل الحر (Freelancing)."
@@ -268,7 +268,7 @@ const FALLBACK_MAJORS_DATABASE = {
         compatibilityScore: 89,
         overview: "فنون الإخراج، التصوير، السرد القصصي، وإنتاج الأفلام والمحتوى الرقمي التفاعلي للمنصات العالمية.",
         whyMatch: ["عشقك لسرد القصص وصناعة الفيديوهات والتعبير عن الأفكار.", "تفضيلك للحرية الإبداعية والميدانية."],
-        topRoles: ["صانع محتوى وفيديو", "مخرج وسائط رقمية", "مختص مونتاج ومؤثرات بصري"],
+        topRoles: ["صانع محتوى وفيديو", "مخرج وسائط رقمية", "مختص مونتاج ومؤثرات بصري"]
       },
       {
         name: "التصميم الداخلي والمشاهد البصرية",
@@ -289,7 +289,7 @@ const FALLBACK_MAJORS_DATABASE = {
       compatibilityScore: 95,
       overview: "تخصص حيوي يتناول دراسة الأنظمة القانونية، صياغة العقود التجارية، وحماية الملكية الفكرية والدفاع عن الحقوق في العالم الواقعي والرقمي.",
       whyMatch: [
-        "مهاراتك العالية في الحوار، صياغة الحجج والبراهين، والتحليل اللغوي.",
+        "مهاراتك العالية في الحوار، صياغة الحجج والبراهين، والتحليل اللغوي في إجاباتك.",
         "دافعك القوي لنصرة العدالة وتطبيق الأخلاقيات والأنظمة.",
         "قدرتك على التفكير المنطقي واستقراء النصوص القانونية المعقدة.",
         "تطلعك لدور قيادي واستشاري مرموق في المجتمع والمؤسسات."
@@ -333,7 +333,7 @@ const FALLBACK_MAJORS_DATABASE = {
 };
 
 /**
- * Intelligent Rule-Based Analyzer for fallback offline mode
+ * Intelligent Keyword NLP Rule-Based Analyzer for open-ended text answers (Offline Fallback)
  */
 export function analyzeQuizAnswersFallback(userAnswers) {
   const scores = {
@@ -344,25 +344,36 @@ export function analyzeQuizAnswersFallback(userAnswers) {
     law_social: 0
   };
 
-  // Process answers and sum points based on chosen category tags
-  questions.forEach((q) => {
-    const chosenOptionId = userAnswers[q.id];
-    if (chosenOptionId) {
-      const optionObj = q.options.find((opt) => opt.id === chosenOptionId);
-      if (optionObj && optionObj.categoryTag && scores[optionObj.categoryTag] !== undefined) {
-        scores[optionObj.categoryTag] += 1;
-      }
-    }
+  const keywords = {
+    engineering_tech: ["حاسب", "برمجة", "كمبيوتر", "رياضيات", "أرقام", "أجهزة", "روبوت", "تقنية", "كود", "تكود", "خوارزميات", "هندسة", "تطبيقات", "موقع", "computer", "math", "coding", "software", "tech", "algorithm", "engineering", "app", "python", "ai"],
+    medical_health: ["أحياء", "كيمياء", "طب", "صحة", "دواء", "صيدلية", "مستشفى", "علاج", "مرضى", "تشريح", "عيادة", "مختبر", "علوم", "إسعافات", "biology", "chemistry", "doctor", "medicine", "health", "pharmacy", "hospital", "patient", "clinic"],
+    business_finance: ["تجارة", "إحصاء", "أسواق", "شركات", "أرباح", "ميزانية", "تسويق", "إدارة", "استثمار", "فلوس", "أموال", "ريادة", "مشروع", "تاجر", "business", "finance", "money", "trading", "marketing", "sales", "profit", "canteen", "stock"],
+    design_art_media: ["رسم", "فنية", "تصميم", "إعلام", "تصوير", "مونتاج", "فوتوشوب", "ألوان", "بوسترات", "فن", "إخراج", "صور", "معرض", "مجسم", "art", "design", "media", "drawing", "photo", "video", "aesthetic", "creative", "poster"],
+    law_social: ["تاريخ", "لغتي", "قانون", "محاماة", "مجتمع", "إذاعة", "إلقاء", "مناظرة", "تعبير", "مقالات", "علم نفس", "تدريس", "حقوق", "دفاع", "مستشار", "law", "history", "speech", "debate", "advocacy", "teaching", "social", "essay"]
+  };
+
+  // Process all open text responses
+  Object.values(userAnswers).forEach((text) => {
+    if (!text || typeof text !== "string") return;
+    const lower = text.toLowerCase();
+
+    Object.keys(keywords).forEach((cat) => {
+      keywords[cat].forEach((kw) => {
+        if (lower.includes(kw)) {
+          scores[cat] += 1;
+        }
+      });
+    });
   });
 
-  // Sort categories by highest score
+  // Find category with highest score
   const sortedCategories = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
   const primaryCat = sortedCategories[0] || "engineering_tech";
   
   const categoryData = FALLBACK_MAJORS_DATABASE[primaryCat] || FALLBACK_MAJORS_DATABASE.engineering_tech;
 
   const resultPayload = {
-    personalitySummary: `بناءً على تحليلاتنا المعمقة لإجاباتك الـ 12، تبين أنك تمتلك نمط تفكير ينتمي بقوة إلى مجال (${categoryData.primary.category}). تظهر شخصيتك توازناً ممتازا بين الشغف العلمي/الفني، القدرة على حل التحديات المعقدة، والدافع القوي للتميز المهني وصناعة مستقبل واعد.`,
+    personalitySummary: `بناءً على تحليلاتنا النصية المعمقة لإجاباتك الـ 12 المفتوحة، تبين أنك تمتلك حصيلة تعبير ونمط تفكير ينتمي بقوة إلى مجال (${categoryData.primary.category}). تظهر كلماتك توازناً ممتازا بين الشغف العلمي/الفني، القدرة على حل التحديات والمعضلات، والدافع القوي للتميز المهني وصناعة مستقبل واعد.`,
     primaryMajor: categoryData.primary,
     alternateMajors: categoryData.alternates
   };
@@ -371,30 +382,28 @@ export function analyzeQuizAnswersFallback(userAnswers) {
 }
 
 /**
- * Gemini API Live Integration Service
+ * Gemini API Live Integration Service for Open-Ended Text Responses
  */
 export async function analyzeQuizAnswersWithGemini(userAnswers, apiKey) {
-  // If no API Key is provided, seamlessly fallback to intelligent offline rule-based analyzer
+  // If no API Key is provided, seamlessly fallback to intelligent text keyword NLP analyzer
   if (!apiKey || apiKey.trim() === "") {
-    console.log("No Gemini API key provided. Executing Smart Fallback Engine...");
-    // Simulate realistic processing delay for smooth UI feedback
+    console.log("No Gemini API key provided. Executing Open-Ended NLP Fallback Engine...");
     await new Promise((resolve) => setTimeout(resolve, 3000));
     return analyzeQuizAnswersFallback(userAnswers);
   }
 
-  // Format student responses cleanly for prompt insertion
+  // Format open-ended text answers cleanly for Gemini prompt
   const formattedAnswers = questions.map((q) => {
-    const chosenOptionId = userAnswers[q.id];
-    const chosenOpt = q.options.find((opt) => opt.id === chosenOptionId);
+    const textAnswer = userAnswers[q.id] || "لم يقدم الطالب إجابة";
     return `السؤال ${q.id} (${q.category} - ${q.question}):
-  الإجابة المحددة: ${chosenOpt ? chosenOpt.title + " - " + chosenOpt.description : "لم يحدد"}`;
+  إجابة الطالب النصية الحرّة: "${textAnswer}"`;
   }).join("\n\n");
 
   const promptText = `
-المحتوى المحدد من الطالب في الاستبيان:
+إجابات طالب الثانوية النصية الحرّة المفتوحة في الاستبيان:
 ${formattedAnswers}
 
-يرجى تحليل هذه البيانات وتقديم تقرير التوجيه الجامعي المكتمل بتنسيق JSON حصراً كما تفرض تعليمات نظامك.
+يرجى تحليل الكلمات ونمط تفكير الطالب من هذه الإجابات المفتوحة وتقديم تقرير التوجيه الجامعي المكتمل بتنسيق JSON حصراً كما تفرض تعليمات نظامك.
 `;
 
   try {
@@ -435,7 +444,6 @@ ${formattedAnswers}
       throw new Error("لم يتم استلام رد نصي من نموذج Gemini.");
     }
 
-    // Clean JSON response string (remove potential markdown wrappers)
     let cleanedJsonString = rawText.trim();
     if (cleanedJsonString.startsWith("```json")) {
       cleanedJsonString = cleanedJsonString.replace(/^```json\s*/, "").replace(/\s*```$/, "");
@@ -447,8 +455,7 @@ ${formattedAnswers}
     return parsedResult;
 
   } catch (error) {
-    console.error("Failed to connect to Gemini API. Falling back to local smart analyzer:", error);
-    // Fallback gracefully on API errors (rate-limit, invalid key, offline, etc.)
+    console.error("Failed to connect to Gemini API. Falling back to local NLP smart analyzer:", error);
     return analyzeQuizAnswersFallback(userAnswers);
   }
 }
