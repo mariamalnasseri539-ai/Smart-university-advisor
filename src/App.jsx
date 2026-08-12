@@ -12,8 +12,27 @@ import { analyzeQuizAnswersWithGemini } from "./services/geminiService";
 export function App() {
   // App views: "hero" | "quiz" | "loading" | "result"
   const [currentView, setCurrentView] = useState("hero");
-  const [userAnswers, setUserAnswers] = useState({});
+  
+  // Persistent Session Storage for userAnswers during quiz taking
+  const [userAnswers, setUserAnswers] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("temp_user_answers");
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
   const [resultData, setResultData] = useState(null);
+
+  // Sync userAnswers to sessionStorage
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("temp_user_answers", JSON.stringify(userAnswers));
+    } catch (e) {
+      console.warn("Could not save answers to sessionStorage:", e);
+    }
+  }, [userAnswers]);
 
   // Language state ("ar" | "en")
   const [lang, setLang] = useState(() => {
@@ -42,14 +61,12 @@ export function App() {
   });
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
 
-  // Sync Language changes to HTML attributes
   useEffect(() => {
     localStorage.setItem("preferred_lang", lang);
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   }, [lang]);
 
-  // Sync Theme changes to HTML class
   useEffect(() => {
     localStorage.setItem("preferred_theme", theme);
     if (theme === "light") {
@@ -107,19 +124,20 @@ export function App() {
 
   const handleResetQuiz = () => {
     setUserAnswers({});
+    sessionStorage.removeItem("temp_user_answers");
     setResultData(null);
     setCurrentView("hero");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleStartQuiz = () => {
-    setUserAnswers({});
     setCurrentView("quiz");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleSelectDemoProfile = async (demoProfile) => {
     setUserAnswers(demoProfile.answers);
+    sessionStorage.setItem("temp_user_answers", JSON.stringify(demoProfile.answers));
     setCurrentView("loading");
     window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -132,6 +150,7 @@ export function App() {
     setCurrentView("loading");
     window.scrollTo({ top: 0, behavior: "smooth" });
 
+    // Pass the actual current userAnswers
     const result = await analyzeQuizAnswersWithGemini(userAnswers, apiKey);
     setResultData(result);
     setCurrentView("result");
