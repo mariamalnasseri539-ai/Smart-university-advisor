@@ -1,11 +1,29 @@
 import React, { useState } from "react";
 import { 
-  ArrowRight, ArrowLeft, RotateCcw, Sparkles, AlertCircle,
-  MessageSquarePlus, X, PenTool, Lightbulb, Check
+  ArrowRight, ArrowLeft, RotateCcw, Check, Sparkles, AlertCircle,
+  Calculator, Dna, TrendingUp, Palette, Scale, BrainCircuit, Microscope,
+  Target, Users, Laptop, Building2, Briefcase, Compass, ShieldAlert,
+  Cpu, Stethoscope, DollarSign, Wand2, MessageSquare, Code, Activity,
+  BarChart3, Layers, Lock, Gamepad2, HeartHandshake, LineChart, Camera,
+  BookOpen, Binary, PieChart, Feather, FileText, Wrench, UserCheck, Crown,
+  Eye, Mic, Rocket, Heart, Building, PenTool, Award, Zap, Clock, Smile,
+  CheckCircle, GraduationCap, BookMarked, FileCheck, Library, Globe,
+  ShieldCheck, Coins, Sparkle, Search
 } from "lucide-react";
 import { questions } from "../data/questions";
 import { ProgressBar } from "./ProgressBar";
 import { translations } from "../data/translations";
+
+const ICON_MAP = {
+  Calculator, Dna, TrendingUp, Palette, Scale, BrainCircuit, Sparkles, Microscope,
+  Target, Users, Laptop, Building2, Briefcase, Compass, ShieldAlert,
+  Cpu, Stethoscope, DollarSign, Wand2, MessageSquare, Code, Activity,
+  BarChart3, Layers, Lock, Gamepad2, HeartHandshake, LineChart, Camera,
+  BookOpen, Binary, PieChart, Feather, FileText, Wrench, UserCheck, Crown,
+  Eye, Mic, Rocket, Heart, Building, PenTool, Award, Zap, Clock, Smile,
+  CheckCircle, GraduationCap, BookMarked, FileCheck, Library, Globe,
+  ShieldCheck, Coins, Sparkle, Search
+};
 
 export function Questionnaire({ lang, userAnswers, onSelectAnswer, onSubmitQuiz, onResetQuiz }) {
   const t = translations[lang] || translations.ar;
@@ -16,32 +34,15 @@ export function Questionnaire({ lang, userAnswers, onSelectAnswer, onSubmitQuiz,
 
   const currentQ = questions[currentIndex];
   const totalQuestions = questions.length;
-  const currentAnswer = userAnswers[currentQ.id] || "";
+  const currentAnswer = userAnswers[currentQ.id];
 
-  const handleTextChange = (value) => {
-    onSelectAnswer(currentQ.id, value);
-    if (value.trim().length > 0) {
-      setErrorNotice(false);
-    }
-  };
-
-  const handleAddChip = (chipText) => {
-    let updatedText = currentAnswer.trim();
-    if (updatedText.length === 0) {
-      updatedText = chipText;
-    } else if (!updatedText.includes(chipText)) {
-      updatedText = `${updatedText}، ${chipText}`;
-    }
-    onSelectAnswer(currentQ.id, updatedText);
+  const handleOptionClick = (optionId) => {
+    onSelectAnswer(currentQ.id, optionId);
     setErrorNotice(false);
   };
 
-  const handleClearInput = () => {
-    onSelectAnswer(currentQ.id, "");
-  };
-
   const handleNext = () => {
-    if (!currentAnswer || currentAnswer.trim().length === 0) {
+    if (!currentAnswer) {
       setErrorNotice(true);
       return;
     }
@@ -67,8 +68,6 @@ export function Questionnaire({ lang, userAnswers, onSelectAnswer, onSubmitQuiz,
   const badgeText = isRtl ? currentQ.badge : (currentQ.badgeEn || currentQ.badge);
   const questionText = isRtl ? currentQ.question : (currentQ.questionEn || currentQ.question);
   const descriptionText = isRtl ? currentQ.description : (currentQ.descriptionEn || currentQ.description);
-  const placeholderText = isRtl ? currentQ.placeholder : (currentQ.placeholderEn || currentQ.placeholder);
-  const chipsList = isRtl ? (currentQ.suggestionChips || []) : (currentQ.suggestionChipsEn || currentQ.suggestionChips || []);
 
   const NextArrow = isRtl ? ArrowLeft : ArrowRight;
   const BackArrow = isRtl ? ArrowRight : ArrowLeft;
@@ -91,7 +90,7 @@ export function Questionnaire({ lang, userAnswers, onSelectAnswer, onSubmitQuiz,
         <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Question Header */}
-        <div className="space-y-3 mb-6 text-start">
+        <div className="space-y-3 mb-8 text-start">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 text-xs font-bold font-cairo">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span>{t.categoryPrefix}: {categoryText}</span>
@@ -114,74 +113,63 @@ export function Questionnaire({ lang, userAnswers, onSelectAnswer, onSubmitQuiz,
           </div>
         )}
 
-        {/* Open-Ended Textarea Input */}
+        {/* Options List */}
         <div className="space-y-4">
-          <div className="relative">
-            <textarea
-              rows={4}
-              value={currentAnswer}
-              onChange={(e) => handleTextChange(e.target.value)}
-              placeholder={placeholderText}
-              className="w-full bg-slate-950/90 border border-slate-700/80 focus:border-indigo-500 rounded-2xl p-5 text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-tajawal leading-relaxed shadow-inner"
-            ></textarea>
+          {currentQ.options.map((option) => {
+            const isSelected = currentAnswer === option.id;
+            const IconComponent = ICON_MAP[option.icon] || Sparkles;
 
-            {/* Clear button inside textarea */}
-            {currentAnswer.length > 0 && (
+            const optTitle = isRtl ? option.title : (option.titleEn || option.title);
+            const optDesc = isRtl ? option.description : (option.descriptionEn || option.description);
+
+            return (
               <button
-                type="button"
-                onClick={handleClearInput}
-                className="absolute top-4 left-4 p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
-                title="مسح النص"
+                key={option.id}
+                onClick={() => handleOptionClick(option.id)}
+                className={`w-full text-start p-5 rounded-2xl border transition-all duration-200 flex items-start gap-4 group relative ${
+                  isSelected
+                    ? "bg-gradient-to-r from-indigo-950/90 via-slate-900 to-purple-950/80 border-indigo-500 shadow-lg shadow-indigo-500/20 ring-2 ring-indigo-500/40"
+                    : "bg-slate-900/60 border-slate-800/80 hover:bg-slate-900 hover:border-slate-700 text-slate-200"
+                }`}
               >
-                <X className="w-4 h-4" />
+                {/* Icon Container */}
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-300 group-hover:scale-110 ${
+                    isSelected
+                      ? "bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-500/30"
+                      : "bg-slate-800 text-indigo-400 border-slate-700"
+                  }`}
+                >
+                  <IconComponent className="w-6 h-6" />
+                </div>
+
+                {/* Text Details */}
+                <div className="flex-1 min-w-0">
+                  <h3
+                    className={`text-base font-bold font-cairo transition-colors ${
+                      isSelected ? "text-white" : "text-slate-200 group-hover:text-white"
+                    }`}
+                  >
+                    {optTitle}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-relaxed font-tajawal">
+                    {optDesc}
+                  </p>
+                </div>
+
+                {/* Selection Check Circle */}
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 border transition-all ${
+                    isSelected
+                      ? "bg-emerald-500 border-emerald-400 text-slate-950"
+                      : "border-slate-700 bg-slate-950/40"
+                  }`}
+                >
+                  {isSelected && <Check className="w-4 h-4 stroke-[3]" />}
+                </div>
               </button>
-            )}
-            
-            {/* Character Count */}
-            <div className="flex items-center justify-between text-[11px] text-slate-500 px-2 mt-1">
-              <span className="flex items-center gap-1">
-                <PenTool className="w-3 h-3 text-indigo-400" />
-                <span>إجابة حرّة مفتوحة للذكاء الاصطناعي</span>
-              </span>
-              <span className="font-mono">{currentAnswer.length} حرف</span>
-            </div>
-          </div>
-
-          {/* Interactive Suggestion Chips */}
-          {chipsList.length > 0 && (
-            <div className="space-y-2 pt-2 border-t border-slate-800/80">
-              <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5 font-cairo">
-                <Lightbulb className="w-4 h-4 text-amber-400" />
-                <span>{t.quickSuggestions}</span>
-              </span>
-
-              <div className="flex flex-wrap gap-2">
-                {chipsList.map((chip, idx) => {
-                  const isAlreadyAdded = currentAnswer.includes(chip);
-
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => handleAddChip(chip)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all duration-200 text-start flex items-center gap-1.5 ${
-                        isAlreadyAdded
-                          ? "bg-indigo-950 border-indigo-500 text-indigo-200 shadow-sm"
-                          : "bg-slate-900/80 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700 hover:text-white"
-                      }`}
-                    >
-                      {isAlreadyAdded ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      ) : (
-                        <MessageSquarePlus className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                      )}
-                      <span>{chip}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+            );
+          })}
         </div>
 
         {/* Footer Navigation Controls */}
